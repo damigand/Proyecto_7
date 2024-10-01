@@ -1,5 +1,6 @@
-const User = require("../models/User");
-const bcrypt = require("bcrypt");
+const User = require('../models/User');
+const bcrypt = require('bcrypt');
+const jwt = require('../../utils/token/token');
 
 const getAllUsers = async (req, res, next) => {
     try {
@@ -38,7 +39,7 @@ const createUser = async (req, res, next) => {
         const taken = await User.findOne({ username: username });
 
         if (taken) {
-            return res.status(400).json("username already taken");
+            return res.status(400).json('username already taken');
         }
 
         const newUser = new User({
@@ -56,12 +57,20 @@ const createUser = async (req, res, next) => {
 const editUser = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const oldUser = await User.findById(id);
-        oldUser.username = req.body.username;
-        oldUser.password = req.body.password;
 
-        const user = oldUser.save();
-        return res.status(200).json(user);
+        const userToEdit = await User.findById(id);
+        const requestUser = await User.findById(req.user.id);
+
+        if (requestUser.id == userToEdit.id || requestUser.role == 'admin') {
+            const change = {
+                username: req.body.username || userToEdit.username,
+            };
+
+            const newUser = await User.findOneAndUpdate({ _id: id }, change, { new: true });
+            return res.status(200).json(newUser);
+        } else {
+            return res.status(401).json("You can't edit this user");
+        }
     } catch (error) {
         return res.status(500).json(`Error (editUser): ${error}`);
     }
@@ -72,7 +81,7 @@ const deleteUser = async (req, res, next) => {
         const { id } = req.params;
         await User.findByIdAndDelete(id);
 
-        return res.status(200).json("User successfully deleted");
+        return res.status(200).json('User successfully deleted');
     } catch (error) {
         return res.status(500).json(`Error (deleteUser): ${error}`);
     }
@@ -86,17 +95,17 @@ const loginUser = async (req, res, next) => {
         const user = await User.findOne({ username: username });
 
         if (!user) {
-            return res.status(404).json("There is no user with that username");
+            return res.status(404).json('That username does not exist');
         }
 
         const check = bcrypt.compareSync(password, user.password);
 
         if (!check) {
-            return res.status(400).json("Incorrect password");
+            return res.status(400).json('Incorrect password');
         }
 
-        //Generar token y devolver.
-        return res.status(200).json(user);
+        const token = jwt.generateToken(user._id, user.username);
+        return res.status(200).json(token);
     } catch (error) {
         return res.status(500).json(`Error (loginUser): ${error}`);
     }
