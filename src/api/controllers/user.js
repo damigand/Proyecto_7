@@ -1,6 +1,6 @@
-const User = require('../models/User');
-const bcrypt = require('bcrypt');
-const jwt = require('../../utils/token/token');
+const User = require("../models/User");
+const bcrypt = require("bcrypt");
+const jwt = require("../../utils/token/token");
 
 const getAllUsers = async (req, res, next) => {
     try {
@@ -39,7 +39,7 @@ const createUser = async (req, res, next) => {
         const taken = await User.findOne({ username: username });
 
         if (taken) {
-            return res.status(400).json('username already taken');
+            return res.status(400).json("username already taken");
         }
 
         const newUser = new User({
@@ -61,7 +61,7 @@ const editUser = async (req, res, next) => {
         const userToEdit = await User.findById(id);
         const requestUser = await User.findById(req.user.id);
 
-        if (requestUser.id == userToEdit.id || requestUser.role == 'admin') {
+        if (requestUser.id == userToEdit.id || requestUser.role == "admin") {
             const change = {
                 username: req.body.username || userToEdit.username,
             };
@@ -79,9 +79,17 @@ const editUser = async (req, res, next) => {
 const deleteUser = async (req, res, next) => {
     try {
         const { id } = req.params;
-        await User.findByIdAndDelete(id);
 
-        return res.status(200).json('User successfully deleted');
+        const userToRemove = await User.findById(id);
+        const requestUser = await User.findById(req.user.id);
+
+        if (requestUser.id == userToRemove.id || requestUser.role == "admin") {
+            await User.findByIdAndDelete(userToRemove.id);
+
+            return res.status(200).json("User successfully deleted");
+        } else {
+            return res.status(401).json("You can't delete this user");
+        }
     } catch (error) {
         return res.status(500).json(`Error (deleteUser): ${error}`);
     }
@@ -95,13 +103,13 @@ const loginUser = async (req, res, next) => {
         const user = await User.findOne({ username: username });
 
         if (!user) {
-            return res.status(404).json('That username does not exist');
+            return res.status(404).json("That username does not exist");
         }
 
         const check = bcrypt.compareSync(password, user.password);
 
         if (!check) {
-            return res.status(400).json('Incorrect password');
+            return res.status(400).json("Incorrect password");
         }
 
         const token = jwt.generateToken(user._id, user.username);

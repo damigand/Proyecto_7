@@ -4,7 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "server": "node index.js"
+        "server": "node index.js",
+        "user-seed": "node ./src/utils/seeds/user"
     },
     "keywords": [],
     "author": "",
