@@ -9,6 +9,7 @@ const carSchema = new Schema(
         distance: { type: Number, required: true },
         rented: { type: Boolean, required: true, default: false },
         owner: { type: mongoose.Types.ObjectId },
+        approved: { type: Boolean, required: true, default: false },
     },
     {
         timestamps: true,

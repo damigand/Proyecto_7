@@ -17,10 +17,10 @@ router.get('/owner/:id', controller.getCarsByOwner);
 
 router.get('/rented/:rented', controller.getCarsByRented);
 
-router.post('/create', controller.createCar);
+router.post('/create', isAuth, controller.createCar);
 
-router.put('/edit/:id', controller.editCar);
+router.put('/edit/:id', isAuth, controller.editCar);
 
-router.delete('/delete/:id', controller.deleteCar);
+router.delete('/delete/:id', isAuth, controller.deleteCar);
 
 module.exports = router;

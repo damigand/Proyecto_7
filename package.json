@@ -5,7 +5,8 @@
     "main": "index.js",
     "scripts": {
         "server": "node index.js",
-        "user-seed": "node ./src/utils/seeds/user"
+        "user-seed": "node ./src/utils/seeds/user",
+        "car-seed": "node ./src/utils/seeds/car"
     },
     "keywords": [],
     "author": "",

@@ -1,80 +1,138 @@
 const Car = require('../models/Car');
+const User = require('../models/User');
 
-const getAllCars = (req, res, next) => {
+const getAllCars = async (req, res, next) => {
     try {
-        return res.status(200).json('getAllCars');
+        const cars = await Car.find();
+        return res.status(200).json(cars);
     } catch (error) {
         return res.status(500).json(`Error (getAllCars): ${error}`);
     }
 };
 
-const getCarById = (req, res, next) => {
+const getCarById = async (req, res, next) => {
     try {
-        return res.status(200).json('getCarById');
+        const { id } = req.params;
+        const car = await Car.findById(id);
+
+        return res.status(200).json(car);
     } catch (error) {
         return res.status(500).json(`Error (getCarById): ${error}`);
     }
 };
 
-const getCarsByName = (req, res, next) => {
+const getCarsByName = async (req, res, next) => {
     try {
-        return res.status(200).json('getCarsByName');
+        const { name } = req.params;
+        const cars = await Car.find({ name: { $regex: name, $options: 'i' } });
+
+        return res.status(200).json(cars);
     } catch (error) {
         return res.status(500).json(`Error (getCarsByName): ${error}`);
     }
 };
 
-const getCarsByBrand = (req, res, next) => {
+const getCarsByBrand = async (req, res, next) => {
     try {
-        return res.status(200).json('getCarsByBrand');
+        const { brand } = req.params;
+        const cars = await Car.find({ brand: { $regex: brand, $options: 'i' } });
+
+        return res.status(200).json(cars);
     } catch (error) {
         return res.status(500).json(`Error (getCarsByBrand): ${error}`);
     }
 };
 
-const getCarsByDistance = (req, res, next) => {
+const getCarsByDistance = async (req, res, next) => {
     try {
-        return res.status(200).json('getCarsByDistance');
+        const { km } = req.params;
+        const cars = await Car.find({ distance: { $gte: km } });
+
+        return res.status(200).json(cars);
     } catch (error) {
         return res.status(500).json(`Error (getCarsByDistance): ${error}`);
     }
 };
 
-const getCarsByOwner = (req, res, next) => {
+const getCarsByOwner = async (req, res, next) => {
     try {
-        return res.status(200).json('getCarsByOwner');
+        const { id } = req.params;
+        const cars = await Car.find({ ownerId: id });
+
+        return res.status(200).json(cars);
     } catch (error) {
         return res.status(500).json(`Error (getCarsByOwner): ${error}`);
     }
 };
 
-const getCarsByRented = (req, res, next) => {
+const getCarsByRented = async (req, res, next) => {
     try {
-        return res.status(200).json('getCarsByRented');
+        const { rented } = req.params;
+        const cars = await Car.find({ rented: rented });
+
+        return res.status(200).json(cars);
     } catch (error) {
         return res.status(500).json(`Error (getCarsByRented): ${error}`);
     }
 };
 
-const createCar = (req, res, next) => {
+const createCar = async (req, res, next) => {
     try {
-        return res.status(200).json('createCar');
+        const newCar = new Car({
+            name: req.body.name,
+            brand: req.body.brand,
+            year: req.body.year,
+            distance: req.body.distance,
+            owner: req.user.id,
+        });
+
+        const car = await newCar.save();
+        return res.status(201).json(car);
     } catch (error) {
         return res.status(500).json(`Error (createCar): ${error}`);
     }
 };
 
-const editCar = (req, res, next) => {
+const editCar = async (req, res, next) => {
     try {
-        return res.status(200).json('editCar');
+        const { id } = req.params;
+        const oldCar = await Car.findById(id);
+
+        if (!oldCar) return res.status(404).json('No car was found.');
+
+        const userEditing = await User.findById(req.user.id);
+
+        if (userEditing.id == oldCar.owner || userEditing.role == 'admin') {
+            oldCar.name = req.body.name || oldCar.name;
+            oldCar.brand = req.body.brand || oldCar.brand;
+            oldCar.year = req.body.year || oldCar.year;
+            oldCar.distance = req.body.distance || oldCar.distance;
+
+            const newCar = await oldCar.save();
+            return res.status(200).json(newCar);
+        }
+
+        return res.status(401).json("Unauthorized: you can't edit this car.");
     } catch (error) {
         return res.status(500).json(`Error (editCar): ${error}`);
     }
 };
 
-const deleteCar = (req, res, next) => {
+const deleteCar = async (req, res, next) => {
     try {
-        return res.status(200).json('deleteCar');
+        const { id } = req.params;
+        const car = await Car.findById(id);
+
+        if (!car) return res.status(404).json('No car was found.');
+
+        const userDeleting = await User.findById(req.user.id);
+
+        if (userDeleting.id == car.owner || userDeleting.role == 'admin') {
+            await Car.deleteOne(car);
+            return res.status(200).json('Car successfully deleted.');
+        }
+
+        return res.status(401).json("Unauthorized: you can't edit this car.");
     } catch (error) {
         return res.status(500).json(`Error (deleteCar): ${error}`);
     }
