@@ -1,5 +1,5 @@
-const Car = require("../models/Car");
-const User = require("../models/User");
+const Car = require('../models/Car');
+const User = require('../models/User');
 
 const getAllCars = async (req, res, next) => {
     try {
@@ -24,7 +24,7 @@ const getCarById = async (req, res, next) => {
 const getCarsByName = async (req, res, next) => {
     try {
         const { name } = req.params;
-        const cars = await Car.find({ name: { $regex: name, $options: "i" } });
+        const cars = await Car.find({ name: { $regex: name, $options: 'i' } });
 
         return res.status(200).json(cars);
     } catch (error) {
@@ -35,7 +35,7 @@ const getCarsByName = async (req, res, next) => {
 const getCarsByBrand = async (req, res, next) => {
     try {
         const { brand } = req.params;
-        const cars = await Car.find({ brand: { $regex: brand, $options: "i" } });
+        const cars = await Car.find({ brand: { $regex: brand, $options: 'i' } });
 
         return res.status(200).json(cars);
     } catch (error) {
@@ -98,17 +98,20 @@ const editCar = async (req, res, next) => {
         const { id } = req.params;
         const oldCar = await Car.findById(id);
 
-        if (!oldCar) return res.status(404).json("No car was found.");
+        if (!oldCar) return res.status(404).json('No car was found.');
+
+        if (oldCar.rented) return res.status(401).json("You can't edit a car that's currently rented.");
 
         const userEditing = await User.findById(req.user.id);
 
-        if (userEditing.id == oldCar.owner || userEditing.role == "admin") {
+        if (userEditing.id == oldCar.owner || userEditing.role == 'admin') {
             oldCar.name = req.body.name || oldCar.name;
             oldCar.brand = req.body.brand || oldCar.brand;
             oldCar.year = req.body.year || oldCar.year;
             oldCar.distance = req.body.distance || oldCar.distance;
+            oldCar.approved = false;
 
-            if (userEditing.role == "admin") {
+            if (userEditing.role == 'admin') {
                 oldCar.rented = req.body.rented || oldCar.rented;
             }
 
@@ -127,13 +130,15 @@ const deleteCar = async (req, res, next) => {
         const { id } = req.params;
         const car = await Car.findById(id);
 
-        if (!car) return res.status(404).json("No car was found.");
+        if (!car) return res.status(404).json('No car was found.');
+
+        if (car.rented) return res.status(401).json("You can't delete a car that's currently rented.");
 
         const userDeleting = await User.findById(req.user.id);
 
-        if (userDeleting.id == car.owner || userDeleting.role == "admin") {
+        if (userDeleting.id == car.owner || userDeleting.role == 'admin') {
             await Car.deleteOne(car);
-            return res.status(200).json("Car successfully deleted.");
+            return res.status(200).json('Car successfully deleted.');
         }
 
         return res.status(401).json("Unauthorized: you can't edit this car.");

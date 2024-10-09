@@ -1,11 +1,11 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const rentSchema = new Schema(
     {
         rentedCar: { type: mongoose.Types.ObjectId, required: true },
         rentedBy: { type: mongoose.Types.ObjectId, required: true },
-        active: { type: Boolean, required: true, default: true },
+        active: { type: Boolean, required: true, default: false },
         approved: { type: Boolean, required: true, default: false },
     },
     {
@@ -13,6 +13,6 @@ const rentSchema = new Schema(
     }
 );
 
-const Rent = mongoose.model("rents", rentSchema, "rents");
+const Rent = mongoose.model('rents', rentSchema, 'rents');
 
 module.exports = Rent;

@@ -1,8 +1,8 @@
 //Generates two users, one with role "user" and another one with role "admin".
-require("dotenv").config();
-const mongoose = require("mongoose");
-const User = require("../../api/models/User");
-const Car = require("../../api/models/Car");
+require('dotenv').config();
+const mongoose = require('mongoose');
+const User = require('../../api/models/User');
+const Car = require('../../api/models/Car');
 
 mongoose
     .connect(process.env.DB_URL)
@@ -15,15 +15,13 @@ mongoose
     })
     .catch((error) => console.log(`Error deleting collection (User): ${error}`))
     .then(async () => {
-        const NormalUser1 = await User.findOne({ username: "NormalUser1" });
-        const NormalUser2 = await User.findOne({ username: "NormalUser2" });
-        const AdminUser = await User.findOne({ username: "AdminUser" });
+        const NormalUser1 = await User.findOne({ username: 'NormalUser1' });
+        const NormalUser2 = await User.findOne({ username: 'NormalUser2' });
+        const AdminUser = await User.findOne({ username: 'AdminUser' });
 
         data[0].owner = NormalUser1.id;
         data[1].owner = NormalUser2.id;
         data[2].owner = AdminUser.id;
-
-        console.log(data);
 
         await Car.insertMany(data);
     })
@@ -32,20 +30,20 @@ mongoose
 
 const data = [
     {
-        name: "BMW X5 M",
-        brand: "BMW",
+        name: 'BMW X5 M',
+        brand: 'BMW',
         year: 2000,
         distance: 20000,
     },
     {
-        name: "Mercedes Benz",
-        brand: "Mercedes",
+        name: 'Mercedes Benz',
+        brand: 'Mercedes',
         year: 2012,
         distance: 5000,
     },
     {
-        name: "Kia Rio",
-        brand: "Kia",
+        name: 'Kia Rio',
+        brand: 'Kia',
         year: 2017,
         distance: 0,
     },
