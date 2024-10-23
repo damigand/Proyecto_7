@@ -57,10 +57,17 @@ const getRentByActive = async (req, res, next) => {
 
 const getRentByApproved = async (req, res, next) => {
     try {
-        const user = await User.findById(req.user.id);
-        if (user.role != 'admin') return res.status(401).json('Unauthorized: only administrators can see unapproved cars.');
-
         const { approved } = req.params;
+
+        if (approved == 'true') {
+            const rents = await Rent.find({ approved: approved });
+            return res.status(200).json(rents);
+        }
+
+        if (!req.user || req.user.role != 'admin') {
+            return res.status(401).json('Unauthorized: Only administrators can see unapproved cars.');
+        }
+
         const rents = await Rent.find({ approved: approved });
         return res.status(200).json(rents);
     } catch (error) {

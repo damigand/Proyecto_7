@@ -109,7 +109,6 @@ const editCar = async (req, res, next) => {
             oldCar.brand = req.body.brand || oldCar.brand;
             oldCar.year = req.body.year || oldCar.year;
             oldCar.distance = req.body.distance || oldCar.distance;
-            oldCar.approved = false;
 
             if (userEditing.role == 'admin') {
                 oldCar.rented = req.body.rented || oldCar.rented;
