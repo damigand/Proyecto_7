@@ -24,12 +24,14 @@ mongoose
         const carTwo = await Car.findOne({ owner: userTwo.id });
 
         data[0] = new Rent({
+            carOwner: userOne.id,
             rentedCar: carOne.id,
             rentedBy: userTwo.id,
             active: true,
             approved: true,
         });
         data[1] = new Rent({
+            carOwner: userTwo.id,
             rentedCar: carTwo.id,
             rentedBy: userOne.id,
             active: false,

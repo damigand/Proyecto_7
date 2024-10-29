@@ -1,6 +1,8 @@
-const User = require("../models/User");
-const bcrypt = require("bcrypt");
-const jwt = require("../../utils/token/token");
+const User = require('../models/User');
+const Car = require('../models/Car');
+const Rent = require('../models/Rent');
+const bcrypt = require('bcrypt');
+const jwt = require('../../utils/token/token');
 
 const getAllUsers = async (req, res, next) => {
     try {
@@ -25,7 +27,7 @@ const getUserById = async (req, res, next) => {
 const getUserByUsername = async (req, res, next) => {
     try {
         const { username } = req.params;
-        const user = await User.find({ username: username });
+        const user = await User.find({ username: { $regex: username, $options: 'i' } });
 
         return res.status(200).json(user);
     } catch (error) {
@@ -35,11 +37,15 @@ const getUserByUsername = async (req, res, next) => {
 
 const createUser = async (req, res, next) => {
     try {
+        if (!req.body.username) return res.status(500).json('Username required.');
+
+        if (!req.body.password) return res.status(500).json('Password required.');
+
         const username = req.body.username;
         const taken = await User.findOne({ username: username });
 
         if (taken) {
-            return res.status(400).json("username already taken");
+            return res.status(400).json('Username already taken');
         }
 
         const newUser = new User({
@@ -61,7 +67,7 @@ const editUser = async (req, res, next) => {
         const userToEdit = await User.findById(id);
         const requestUser = await User.findById(req.user.id);
 
-        if (requestUser.id == userToEdit.id || requestUser.role == "admin") {
+        if (requestUser.id == userToEdit.id || requestUser.role == 'admin') {
             const change = {
                 username: req.body.username || userToEdit.username,
             };
@@ -83,10 +89,18 @@ const deleteUser = async (req, res, next) => {
         const userToRemove = await User.findById(id);
         const requestUser = await User.findById(req.user.id);
 
-        if (requestUser.id == userToRemove.id || requestUser.role == "admin") {
+        if (requestUser.id == userToRemove.id || requestUser.role == 'admin') {
+            const cars = await Car.find({ owner: id });
+            if (cars.length > 1) await Car.deleteMany(cars);
+            else await Car.deleteOne(cars[0]);
+
+            const rents = await Rent.find({ carOwner: id });
+            if (rents.length > 1) await Rent.deleteMany(rents);
+            else await Rent.deleteOne(rents[0]);
+
             await User.findByIdAndDelete(userToRemove.id);
 
-            return res.status(200).json("User successfully deleted");
+            return res.status(200).json('User successfully deleted');
         } else {
             return res.status(401).json("You can't delete this user");
         }
@@ -103,13 +117,13 @@ const loginUser = async (req, res, next) => {
         const user = await User.findOne({ username: username });
 
         if (!user) {
-            return res.status(404).json("That username does not exist");
+            return res.status(404).json('That username does not exist');
         }
 
         const check = bcrypt.compareSync(password, user.password);
 
         if (!check) {
-            return res.status(400).json("Incorrect password");
+            return res.status(400).json('Incorrect password');
         }
 
         const token = jwt.generateToken(user._id, user.username);

@@ -89,6 +89,7 @@ const createRent = async (req, res, next) => {
         if (carCheck.owner == userCheck.id) return res.status(401).json("Users can't rent their own car.");
 
         const rent = new Rent({
+            carOwner: carCheck.owner,
             rentedCar: carId,
             rentedBy: userId,
         });
@@ -108,7 +109,23 @@ const createRent = async (req, res, next) => {
 
 const editRent = async (req, res, next) => {
     try {
-        return res.status(200).json('editRent');
+        const { id } = req.params;
+        const rent = await Rent.findById(id);
+        const user = await User.findById(req.user.id);
+
+        if (!rent) return res.status(404).json("Couldn't find the rent.");
+
+        if (user.role == 'admin') {
+            rent.rentedCar = req.body.rentedCar || rent.rentedCar;
+            rent.rentedBy = req.body.rentedBy || rent.rentedBy;
+            rent.active = req.body.active || rent.active;
+            rent.approved = req.body.approved || rent.approved;
+
+            await rent.save();
+            return res.status(200).json(rent);
+        }
+
+        return res.status(401).json('Only administrators can edit rents.');
     } catch (error) {
         return res.status(500).json(`Error (editRent): ${error}`);
     }
@@ -116,7 +133,15 @@ const editRent = async (req, res, next) => {
 
 const deleteRent = async (req, res, next) => {
     try {
-        return res.status(200).json('deleteRent');
+        const user = await User.findById(req.user.id);
+
+        if (user.role == 'admin') {
+            const { id } = req.params;
+            await Rent.findByIdAndDelete(id);
+            return res.status(200).json('Rent successfully deleted.');
+        }
+
+        return res.status(401).json('Only administrators can delete rents.');
     } catch (error) {
         return res.status(500).json(`Error (deleteRent): ${error}`);
     }

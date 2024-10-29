@@ -12,8 +12,6 @@ const userSchema = new schema(
             enum: ['admin', 'user'],
             default: 'user',
         },
-        userRents: [{ type: mongoose.Types.ObjectId, ref: 'rents' }],
-        userCars: [{ type: mongoose.Types.ObjectId, ref: 'cars' }],
     },
     {
         timestamps: true,

@@ -17,8 +17,8 @@ router.get('/active/:active', controller.getRentByActive);
 
 router.post('/create', controller.createRent);
 
-router.put('/edit/:id', controller.editRent);
+router.put('/edit/:id', isAuth, controller.editRent);
 
-router.delete('/delete/:id', controller.deleteRent);
+router.delete('/delete/:id', isAuth, controller.deleteRent);
 
 module.exports = router;
