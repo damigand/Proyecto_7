@@ -30,6 +30,9 @@ mongoose
             active: true,
             approved: true,
         });
+        carOne.rented = true;
+        await carOne.save();
+
         data[1] = new Rent({
             carOwner: userTwo.id,
             rentedCar: carTwo.id,
@@ -37,6 +40,8 @@ mongoose
             active: false,
             approved: false,
         });
+        carTwo.rented = true;
+        await carTwo.save();
 
         await Rent.insertMany(data);
     })

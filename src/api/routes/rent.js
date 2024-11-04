@@ -15,7 +15,7 @@ router.get('/approved/:approved', isAuth, controller.getRentByApproved);
 
 router.get('/active/:active', controller.getRentByActive);
 
-router.post('/create', controller.createRent);
+router.post('/create', isAuth, controller.createRent);
 
 router.put('/edit/:id', isAuth, controller.editRent);
 
