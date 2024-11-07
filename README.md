@@ -54,6 +54,7 @@ Para ejecutar el backend, se debe usar `npm run server`.
 Todos los endpoints de "User" van precedidos de "/user". [GET] **`/`** Devuelve un `json` con objetos de todos los usuarios.
 
 [GET] **`/:id`** 
+
 Devuelve un `json` con el objeto de un usuario cuyo `id` es especificado por parámetro.
 
 [GET] **`/name/:username`** 
