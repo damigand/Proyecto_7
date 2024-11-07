@@ -90,6 +90,7 @@ const deleteUser = async (req, res, next) => {
         const requestUser = await User.findById(req.user.id);
 
         if (requestUser.id == userToRemove.id || requestUser.role == 'admin') {
+            //Si un usuario es borrado, se borran tanto sus coches como sus alquileres.
             const cars = await Car.find({ owner: id });
             if (cars.length > 1) await Car.deleteMany(cars);
             else await Car.deleteOne(cars[0]);

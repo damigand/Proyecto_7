@@ -8,7 +8,7 @@ const carSchema = new Schema(
         year: { type: Number, required: true },
         distance: { type: Number, required: true },
         rented: { type: Boolean, required: true, default: false },
-        owner: { type: Schema.Types.ObjectId, ref: 'users' },
+        owner: { type: Schema.Types.ObjectId, required: true, ref: 'users' },
     },
     {
         timestamps: true,
