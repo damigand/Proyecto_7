@@ -9,7 +9,8 @@ const isAuth = async (req, res, next) => {
 
     try {
         const decoded = validateToken(token);
-        req.user = await User.findById(decoded.id);
+        //"select("-password") me permite seleccionar todo el usuario excluyendo la contraseña.
+        req.user = await User.findById(decoded.id).select('-password');
         next();
     } catch (error) {
         return res.status(401).json('Unauthorized: Not a valid token');

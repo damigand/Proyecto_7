@@ -26,7 +26,10 @@ mongoose
         await Car.insertMany(data);
     })
     .catch((error) => console.log(`Error inserting data (User): ${error}`))
-    .finally(() => mongoose.disconnect());
+    .finally(() => {
+        mongoose.disconnect();
+        console.log('car seed executed successfully');
+    });
 
 const data = [
     {

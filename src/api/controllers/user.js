@@ -63,20 +63,22 @@ const createUser = async (req, res, next) => {
 const editUser = async (req, res, next) => {
     try {
         const { id } = req.params;
-
         const userToEdit = await User.findById(id);
-        const requestUser = await User.findById(req.user.id);
 
-        if (requestUser.id == userToEdit.id || requestUser.role == 'admin') {
-            const change = {
-                username: req.body.username || userToEdit.username,
-            };
-
-            const newUser = await User.findOneAndUpdate({ _id: id }, change, { new: true });
-            return res.status(200).json(newUser);
-        } else {
-            return res.status(401).json("You can't edit this user");
+        if (req.user.id != userToEdit.id && req.user.role != 'admin') {
+            return res.status(401).json("You can't edit this user.");
         }
+
+        const change = {
+            username: req.body.username || userToEdit.username,
+        };
+
+        if (req.user.role == 'admin') {
+            change.role = req.body.role || userToEdit.role;
+        }
+
+        const newUser = await User.findOneAndUpdate({ _id: id }, change, { new: true });
+        return res.status(200).json(newUser);
     } catch (error) {
         return res.status(500).json(`Error (editUser): ${error}`);
     }
@@ -87,9 +89,8 @@ const deleteUser = async (req, res, next) => {
         const { id } = req.params;
 
         const userToRemove = await User.findById(id);
-        const requestUser = await User.findById(req.user.id);
 
-        if (requestUser.id == userToRemove.id || requestUser.role == 'admin') {
+        if (req.user.id == userToRemove.id || req.user.role == 'admin') {
             //Si un usuario es borrado, se borran tanto sus coches como sus alquileres.
             const cars = await Car.find({ owner: id });
             if (cars.length > 1) await Car.deleteMany(cars);

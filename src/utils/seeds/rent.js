@@ -46,4 +46,7 @@ mongoose
         await Rent.insertMany(data);
     })
     .catch((error) => console.log(`Error inserting data (User): ${error}`))
-    .finally(() => mongoose.disconnect());
+    .finally(() => {
+        mongoose.disconnect();
+        console.log('rent seed executed successfully');
+    });

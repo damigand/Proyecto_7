@@ -7,8 +7,7 @@ const getAllRents = async (req, res, next) => {
         const rents = await Rent.find({ approved: true })
             .populate('carOwner', 'username')
             .populate({ path: 'rentedCar', select: '-_id name brand year distance' })
-            .populate('rentedBy', 'username')
-            .exec();
+            .populate('rentedBy', 'username');
 
         return res.status(200).json(rents);
     } catch (error) {
@@ -22,8 +21,7 @@ const getRentById = async (req, res, next) => {
         const rent = await Rent.findById(id)
             .populate('carOwner', 'username')
             .populate({ path: 'rentedCar', select: '-_id name brand year distance' })
-            .populate('rentedBy', 'username')
-            .exec();
+            .populate('rentedBy', 'username');
 
         return res.status(200).json(rent);
     } catch (error) {
@@ -37,8 +35,7 @@ const getRentByCarId = async (req, res, next) => {
         const rents = await Rent.find({ rentedCar: id, approved: true })
             .populate('carOwner', 'username')
             .populate({ path: 'rentedCar', select: '-_id name brand year distance' })
-            .populate('rentedBy', 'username')
-            .exec();
+            .populate('rentedBy', 'username');
 
         return res.status(200).json(rents);
     } catch (error) {
@@ -52,8 +49,7 @@ const getRentByRenterId = async (req, res, next) => {
         const rents = await Rent.find({ rentedBy: id, approved: true })
             .populate('carOwner', 'username')
             .populate({ path: 'rentedCar', select: '-_id name brand year distance' })
-            .populate('rentedBy', 'username')
-            .exec();
+            .populate('rentedBy', 'username');
 
         return res.status(200).json(rents);
     } catch (error) {
@@ -67,8 +63,7 @@ const getRentByActive = async (req, res, next) => {
         const rents = await Rent.find({ active: active, approved: true })
             .populate('carOwner', 'username')
             .populate({ path: 'rentedCar', select: '-_id name brand year distance' })
-            .populate('rentedBy', 'username')
-            .exec();
+            .populate('rentedBy', 'username');
 
         return res.status(200).json(rents);
     } catch (error) {
@@ -84,8 +79,7 @@ const getRentByApproved = async (req, res, next) => {
             const rents = await Rent.find({ approved: approved })
                 .populate('carOwner', 'username')
                 .populate({ path: 'rentedCar', select: '-_id name brand year distance' })
-                .populate('rentedBy', 'username')
-                .exec();
+                .populate('rentedBy', 'username');
             return res.status(200).json(rents);
         }
 
@@ -96,8 +90,7 @@ const getRentByApproved = async (req, res, next) => {
         const rents = await Rent.find({ approved: approved })
             .populate('carOwner', 'username')
             .populate({ path: 'rentedCar', select: '-_id name brand year distance' })
-            .populate('rentedBy', 'username')
-            .exec();
+            .populate('rentedBy', 'username');
         return res.status(200).json(rents);
     } catch (error) {
         return res.status(500).json(`Error (getRentByApproved): ${error}`);
@@ -123,8 +116,7 @@ const createRent = async (req, res, next) => {
             rentedBy: userId,
         });
 
-        const requestingUser = await User.findById(req.user.id);
-        if (requestingUser.role == 'admin') {
+        if (req.user.role == 'admin') {
             rent.active = req.body.active;
             rent.approved = req.body.approved;
         }
@@ -147,11 +139,10 @@ const editRent = async (req, res, next) => {
     try {
         const { id } = req.params;
         const rent = await Rent.findById(id);
-        const user = await User.findById(req.user.id);
 
         if (!rent) return res.status(404).json("Couldn't find the rent.");
 
-        if (user.role == 'admin') {
+        if (req.user.role == 'admin') {
             rent.rentedCar = req.body.rentedCar || rent.rentedCar;
             rent.rentedBy = req.body.rentedBy || rent.rentedBy;
             rent.active = req.body.active || rent.active;
@@ -174,9 +165,7 @@ const editRent = async (req, res, next) => {
 
 const deleteRent = async (req, res, next) => {
     try {
-        const user = await User.findById(req.user.id);
-
-        if (user.role == 'admin') {
+        if (req.user.role == 'admin') {
             const { id } = req.params;
             await Rent.findByIdAndDelete(id);
             return res.status(200).json('Rent successfully deleted.');

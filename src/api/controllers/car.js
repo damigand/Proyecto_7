@@ -109,15 +109,13 @@ const editCar = async (req, res, next) => {
 
         if (oldCar.rented) return res.status(401).json("You can't edit a car that's currently rented.");
 
-        const userEditing = await User.findById(req.user.id);
-
-        if (userEditing.id == oldCar.owner || userEditing.role == 'admin') {
+        if (req.user.id == oldCar.owner || req.user.role == 'admin') {
             oldCar.name = req.body.name || oldCar.name;
             oldCar.brand = req.body.brand || oldCar.brand;
             oldCar.year = req.body.year || oldCar.year;
             oldCar.distance = req.body.distance || oldCar.distance;
 
-            if (userEditing.role == 'admin') {
+            if (req.user.role == 'admin') {
                 oldCar.rented = req.body.rented || oldCar.rented;
             }
 
@@ -141,9 +139,7 @@ const deleteCar = async (req, res, next) => {
 
         if (car.rented) return res.status(401).json("You can't delete a car that's currently rented.");
 
-        const userDeleting = await User.findById(req.user.id);
-
-        if (userDeleting.id == car.owner || userDeleting.role == 'admin') {
+        if (req.user.id == car.owner || req.user.role == 'admin') {
             await Car.deleteOne(car);
             return res.status(200).json('Car successfully deleted.');
         }
