@@ -3,7 +3,7 @@ const User = require('../models/User');
 
 const getAllCars = async (req, res, next) => {
     try {
-        const cars = await Car.find().populate('owner', 'username').exec();
+        const cars = await Car.find().populate('owner', 'username');
         return res.status(200).json(cars);
     } catch (error) {
         return res.status(500).json(`Error (getAllCars): ${error}`);
@@ -13,7 +13,7 @@ const getAllCars = async (req, res, next) => {
 const getCarById = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const car = await Car.findById(id).populate('owner', 'username').exec();
+        const car = await Car.findById(id).populate('owner', 'username');
 
         return res.status(200).json(car);
     } catch (error) {
@@ -24,10 +24,7 @@ const getCarById = async (req, res, next) => {
 const getCarsByName = async (req, res, next) => {
     try {
         const { name } = req.params;
-        const cars = await Car.find({ name: { $regex: name, $options: 'i' } })
-            .populate('owner', 'username')
-            .exec();
-
+        const cars = await Car.find({ name: { $regex: name, $options: 'i' } }).populate('owner', 'username');
         return res.status(200).json(cars);
     } catch (error) {
         return res.status(500).json(`Error (getCarsByName): ${error}`);
@@ -37,10 +34,7 @@ const getCarsByName = async (req, res, next) => {
 const getCarsByBrand = async (req, res, next) => {
     try {
         const { brand } = req.params;
-        const cars = await Car.find({ brand: { $regex: brand, $options: 'i' } })
-            .populate('owner', 'username')
-            .exec();
-
+        const cars = await Car.find({ brand: { $regex: brand, $options: 'i' } }).populate('owner', 'username');
         return res.status(200).json(cars);
     } catch (error) {
         return res.status(500).json(`Error (getCarsByBrand): ${error}`);
@@ -50,10 +44,7 @@ const getCarsByBrand = async (req, res, next) => {
 const getCarsByDistance = async (req, res, next) => {
     try {
         const { km } = req.params;
-        const cars = await Car.find({ distance: { $gte: km } })
-            .populate('owner', 'username')
-            .exec();
-
+        const cars = await Car.find({ distance: { $gte: km } }).populate('owner', 'username');
         return res.status(200).json(cars);
     } catch (error) {
         return res.status(500).json(`Error (getCarsByDistance): ${error}`);
@@ -63,7 +54,7 @@ const getCarsByDistance = async (req, res, next) => {
 const getCarsByOwner = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const cars = await Car.find({ owner: id }).populate('owner', 'username').exec();
+        const cars = await Car.find({ owner: id }).populate('owner', 'username');
 
         return res.status(200).json(cars);
     } catch (error) {
@@ -74,7 +65,7 @@ const getCarsByOwner = async (req, res, next) => {
 const getCarsByRented = async (req, res, next) => {
     try {
         const { rented } = req.params;
-        const cars = await Car.find({ rented: rented }).populate('owner', 'username').exec();
+        const cars = await Car.find({ rented: rented }).populate('owner', 'username');
 
         return res.status(200).json(cars);
     } catch (error) {
